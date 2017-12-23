@@ -1,0 +1,23 @@
+{
+  "logsDirectory": "/logs",
+  "boxes": [
+    {
+      "name": "Script",
+      "type": "Script",
+      "x0": 0,
+      "y0": 0,
+      "x1": 50,
+      "y1": 100,
+      "tabSize": 4
+    },
+    {
+      "name": "Manual",
+      "type": "Manual",
+      "refName": "Script",
+      "x0": 50,
+      "y0": 0,
+      "x1": 100,
+      "y1": 100
+    }
+  ]
+}
