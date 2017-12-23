@@ -56,7 +56,7 @@ func setupLogging(logsDir string) *os.File {
 		}
 	}
 
-	file, err := os.OpenFile(logsDir+"/log", os.O_CREATE|os.O_WRONLY|os.O_APPEND|os.O_TRUNC, os.ModePerm)
+	file, err := os.OpenFile(logsDir+"/debug.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND|os.O_TRUNC, os.ModePerm)
 	if err != nil {
 		log.Panicln(err)
 	}

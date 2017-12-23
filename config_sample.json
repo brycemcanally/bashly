@@ -1,5 +1,5 @@
 {
-  "logsDirectory": "/logs",
+  "logsDirectory": "logs",
   "boxes": [
     {
       "name": "Script",
