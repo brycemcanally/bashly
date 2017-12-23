@@ -29,6 +29,11 @@ const (
 	quote                     // we are processing a single quoted string ('...')
 )
 
+var (
+	regexSeparator    = regexp.MustCompile(`^(\|[|&]?|&&|;)`)
+	regexSubstitution = regexp.MustCompile(`^(\$\(|\)|\\*` + "`" + `)`)
+)
+
 // Find returns the name of the command being worked on at offset.
 func Find(script string, offset int) string {
 	// Empty script
@@ -216,13 +221,11 @@ func isComment(line []rune) bool {
 }
 
 func isSeparator(line []rune) bool {
-	re := regexp.MustCompile(`^(\|[|&]?|&&|;)`)
-	return re.MatchString(string(line))
+	return regexSeparator.MatchString(string(line))
 }
 
 func isSubstitution(line []rune) bool {
-	re := regexp.MustCompile(`^(\$\(|\)|\\*` + "`" + `)`)
-	return re.MatchString(string(line))
+	return regexSubstitution.MatchString(string(line))
 }
 
 func isQuote(line []rune) bool {
@@ -230,13 +233,11 @@ func isQuote(line []rune) bool {
 }
 
 func getSeparator(line []rune) string {
-	re := regexp.MustCompile(`^(\|[|&]?|&&|;)`)
-	return re.FindString(string(line))
+	return regexSeparator.FindString(string(line))
 }
 
 func getSubstitution(line []rune) string {
-	re := regexp.MustCompile(`^(\$\(|\)|\\*` + "`" + `)`)
-	return re.FindString(string(line))
+	return regexSubstitution.FindString(string(line))
 }
 
 func isClosingSubstitution(delims util.Stack, token string) bool {
