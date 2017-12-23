@@ -68,7 +68,6 @@ func Find(script string, offset int) string {
 
 	f.line = []rune(line)
 	for f.pos < f.offset || f.state == command {
-
 		switch f.state {
 		case command:
 			f.command()
@@ -96,11 +95,10 @@ func FindAll(script string) []string {
 func (f *Finder) command() {
 	token := ""
 
-done:
-	for {
+	for f.state == command {
 		if f.pos >= len(f.line) {
 			f.state = throwaway
-			break done
+			break
 		}
 
 		line := f.line[f.pos:]
@@ -109,7 +107,6 @@ done:
 		case isSpace(line):
 			if len(token) > 0 {
 				f.state = throwaway
-				break done
 			} else {
 				f.pos++
 			}
@@ -117,13 +114,10 @@ done:
 			f.pos += 2
 		case isComment(line):
 			f.state = throwaway
-			break done
 		case isSeparator(line):
 			f.state = separator
-			break done
 		case isSubstitution(line):
 			f.state = substitution
-			break done
 		default:
 			token += string(line[0])
 			f.pos++
@@ -134,22 +128,26 @@ done:
 }
 
 func (f *Finder) throwaway() {
-	line := f.line[f.pos:]
+	for f.state == throwaway {
+		if f.pos >= f.offset {
+			break
+		}
 
-	switch {
-	case isComment(line):
-		f.cmds.Push("")
-		for f.pos < f.offset {
+		line := f.line[f.pos:]
+
+		switch {
+		case isComment(line):
+			f.cmds.Push("")
+			f.pos = f.offset
+		case isSeparator(line):
+			f.state = separator
+		case isSubstitution(line):
+			f.state = substitution
+		case isQuote(line):
+			f.state = quote
+		default:
 			f.pos++
 		}
-	case isSeparator(line):
-		f.state = separator
-	case isSubstitution(line):
-		f.state = substitution
-	case isQuote(line):
-		f.state = quote
-	default:
-		f.pos++
 	}
 }
 
