@@ -21,6 +21,23 @@ func TestMultiline(t *testing.T) {
 	}
 }
 
+func TestComments(t *testing.T) {
+	s := "# ls\nmv #; ls \\\ngrep\n"
+
+	if cmd := Find(s, 0); cmd != "" {
+		t.Error("Expected empty string, got", cmd)
+	}
+	if cmd := Find(s, 5); cmd != "mv" {
+		t.Error("Expected mv, got", cmd)
+	}
+	if cmd := Find(s, 8); cmd != "mv" {
+		t.Error("Expected mv, got", cmd)
+	}
+	if cmd := Find(s, 16); cmd != "grep" {
+		t.Error("Expected grep, got", cmd)
+	}
+}
+
 func TestSeparators(t *testing.T) {
 	s := "ls |mv|| grep|&chown &&pwd;\n"
 
@@ -117,5 +134,24 @@ func TestSubstitution(t *testing.T) {
 	if cmd := Find(s, 11); cmd != "ls" {
 		t.Error("Expected ls, got", cmd)
 	}
+}
 
+func TestQuotes(t *testing.T) {
+	s := "echo 'hello `grep` $(pwd) \\ #'\n"
+
+	if cmd := Find(s, 0); cmd != "echo" {
+		t.Error("Expected echo, got", cmd)
+	}
+	if cmd := Find(s, 13); cmd != "echo" {
+		t.Error("Expected echo, got", cmd)
+	}
+	if cmd := Find(s, 21); cmd != "echo" {
+		t.Error("Expected echo, got", cmd)
+	}
+	if cmd := Find(s, 28); cmd != "echo" {
+		t.Error("Expected echo, got", cmd)
+	}
+	if cmd := Find(s, 30); cmd != "echo" {
+		t.Error("Expected echo, got", cmd)
+	}
 }

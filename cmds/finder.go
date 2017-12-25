@@ -46,11 +46,11 @@ func Find(script string, offset int) string {
 	// Find the line in which the offset is located
 	re := regexp.MustCompile(`.*\n`)
 	matches := re.FindAllString(script, -1)
-	re2 := regexp.MustCompile(`[^#]*\\\n`)
+	re2 := regexp.MustCompile(`\\\n`)
 	line := ""
 	for _, match := range matches {
 		line += match
-		if !re2.MatchString(match) {
+		if !re2.MatchString(match) || strings.Contains(match, "#") {
 			if f.offset >= len(line) {
 				f.offset -= len(line)
 				line = ""
