@@ -2,11 +2,10 @@ package boxes
 
 import (
 	"errors"
-	"os/exec"
-	"strconv"
 
 	"github.com/bryce/bashly/boxes/util"
 	"github.com/bryce/bashly/boxes/views"
+	"github.com/bryce/bashly/manual"
 	"github.com/jroimartin/gocui"
 )
 
@@ -111,12 +110,11 @@ func (box *Manual) Update(gui *gocui.Gui, active bool) error {
 	}
 
 	maxX, _ := view.Size()
-	man := exec.Command("/bin/bash", "-c", "export MANWIDTH="+strconv.Itoa(maxX)+"; man "+box.command)
-	bytes, err := man.Output()
+	page, err := manual.Get(cmd, maxX)
 	if err == nil {
 		view.SetOrigin(0, 0)
 		view.SetCursor(0, 0)
-		view.Write(bytes)
+		view.Write(page)
 	}
 
 	return nil
