@@ -19,7 +19,8 @@ var pageCache = cache.NewLRUCache(10)
 
 // Get returns the manual page for a given command.
 func Get(command string, width int) (Page, error) {
-	if val, ok := pageCache.Get(command); ok {
+	key := command + string(width)
+	if val, ok := pageCache.Get(key); ok {
 		return val.(Page), nil
 	}
 
@@ -27,7 +28,7 @@ func Get(command string, width int) (Page, error) {
 	bytes, err := man.Output()
 	page := Page(bytes)
 	if err == nil {
-		pageCache.Set(command, page)
+		pageCache.Set(key, page)
 	}
 
 	return page, err
