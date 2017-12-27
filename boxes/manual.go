@@ -111,11 +111,13 @@ func (box *Manual) Update(gui *gocui.Gui, active bool) error {
 
 	maxX, _ := view.Size()
 	page, err := manual.Get(cmd, maxX)
-	if err == nil {
-		view.SetOrigin(0, 0)
-		view.SetCursor(0, 0)
-		view.Write(page)
+	if err != nil {
+		return nil
 	}
+
+	view.SetOrigin(0, 0)
+	view.SetCursor(0, 0)
+	view.Write(page)
 
 	return nil
 }

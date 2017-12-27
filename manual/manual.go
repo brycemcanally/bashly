@@ -1,6 +1,7 @@
 package manual
 
 import (
+	"errors"
 	"os/exec"
 	"strconv"
 
@@ -26,10 +27,11 @@ func Get(command string, width int) (Page, error) {
 
 	man := exec.Command("/bin/bash", "-c", "export MANWIDTH="+strconv.Itoa(width)+"; man "+command)
 	bytes, err := man.Output()
-	page := Page(bytes)
-	if err == nil {
-		pageCache.Set(key, page)
+	if err != nil {
+		return nil, errors.New("No manual page found")
 	}
 
-	return page, err
+	page := Page(bytes)
+	pageCache.Set(key, page)
+	return page, nil
 }
