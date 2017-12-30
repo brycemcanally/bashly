@@ -8,7 +8,7 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/bryce/bashly/cmds/util"
+	"github.com/bryce/bashly/util"
 )
 
 type state int
@@ -83,7 +83,7 @@ func Find(script string, offset int) string {
 	}
 
 	cmd, _ := f.cmds.Top()
-	return cmd
+	return cmd.(string)
 
 }
 
@@ -239,7 +239,8 @@ func getSubstitution(line []rune) string {
 }
 
 func isClosingSubstitution(delims util.Stack, token string) bool {
-	open, err := delims.Top()
+	val, err := delims.Top()
+	open := val.(string)
 	if err != nil {
 		return false
 	}
@@ -262,19 +263,22 @@ func isOpeningSubstitution(delims util.Stack, token string) bool {
 		return false
 	}
 
-	open, err := delims.Top()
+	val, err := delims.Top()
+	open := val.(string)
 	switch {
 	case token == "`":
 		return err != nil || !strings.Contains(open, "`")
 	case token == "\\`":
 		return open == "`"
 	default:
-		opens, err := delims.Top2()
+		val1, val2, err := delims.Top2()
+		open1 := val1.(string)
+		open2 := val2.(string)
 		if err != nil {
 			return false
 		}
 
-		backslashes := (len(opens[1]) - len(opens[0])) * 2
-		return len(token) == len(opens[1])+backslashes
+		backslashes := (len(open1) - len(open2)) * 2
+		return len(token) == len(open1)+backslashes
 	}
 }
