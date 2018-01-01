@@ -4,6 +4,7 @@ Package cmds implements functionality for finding commands in bash scripts.
 package cmds
 
 import (
+	"errors"
 	"regexp"
 	"strings"
 	"unicode"
@@ -42,10 +43,9 @@ var (
 )
 
 // Find returns the name of the command being worked on at offset.
-func Find(script string, offset int) *Command {
-	// Empty script
+func Find(script string, offset int) (*Command, error) {
 	if len(script) <= 1 {
-		return nil
+		return nil, errors.New("empty script")
 	}
 
 	f := &Finder{offset: offset, delims: util.Stack{}, cmds: util.Stack{}, state: command}
@@ -68,9 +68,8 @@ func Find(script string, offset int) *Command {
 		}
 	}
 
-	// Empty line
 	if len(line) <= 0 {
-		return nil
+		return nil, errors.New("empty line")
 	}
 
 	f.line = []rune(line)
@@ -89,8 +88,13 @@ func Find(script string, offset int) *Command {
 		}
 	}
 
-	cmd, _ := f.cmds.Top()
-	return cmd.(*Command)
+	val, _ := f.cmds.Top()
+	cmd := val.(*Command)
+	if cmd.Name == "" {
+		return nil, errors.New("no command")
+	}
+
+	return cmd, nil
 
 }
 

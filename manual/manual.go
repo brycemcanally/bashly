@@ -5,6 +5,7 @@ import (
 	"os/exec"
 	"strconv"
 
+	"github.com/bryce/bashly/cmds"
 	"github.com/youtube/vitess/go/cache"
 )
 
@@ -19,13 +20,13 @@ func (p Page) Size() int {
 var pageCache = cache.NewLRUCache(10)
 
 // Get returns the manual page for a given command.
-func Get(command string, width int) (Page, error) {
-	key := command + string(width)
+func Get(command *cmds.Command, width int) (Page, error) {
+	key := command.Name + string(width)
 	if val, ok := pageCache.Get(key); ok {
 		return val.(Page), nil
 	}
 
-	man := exec.Command("/bin/bash", "-c", "export MANWIDTH="+strconv.Itoa(width)+"; man "+command)
+	man := exec.Command("/bin/bash", "-c", "export MANWIDTH="+strconv.Itoa(width)+"; man "+command.Name)
 	bytes, err := man.Output()
 	if err != nil {
 		return nil, errors.New("No manual page found")

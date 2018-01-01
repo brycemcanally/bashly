@@ -1,6 +1,8 @@
 package boxes
 
 import (
+	"errors"
+
 	"github.com/bryce/bashly/boxes/util"
 	"github.com/bryce/bashly/cmds"
 	"github.com/jroimartin/gocui"
@@ -84,15 +86,19 @@ func (box *Script) Update(gui *gocui.Gui, active bool) error {
 		box.command = nil
 	} else {
 		offset := util.PositionIndex(view, x, y)
-		box.command = cmds.Find(view.Buffer(), offset)
+		box.command, _ = cmds.Find(view.Buffer(), offset)
 	}
 
 	return nil
 }
 
 // Command gets the current command being worked on in the script.
-func (box *Script) Command() *cmds.Command {
-	return box.command
+func (box *Script) Command() (*cmds.Command, error) {
+	if box.command == nil {
+		return nil, errors.New("no command")
+	}
+
+	return box.command, nil
 }
 
 // Emulates the insertion of a tab with spaces.

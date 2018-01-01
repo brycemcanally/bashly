@@ -5,7 +5,6 @@ import (
 
 	"github.com/bryce/bashly/boxes/util"
 	"github.com/bryce/bashly/boxes/views"
-	"github.com/bryce/bashly/cmds"
 	"github.com/bryce/bashly/manual"
 	"github.com/jroimartin/gocui"
 )
@@ -17,7 +16,7 @@ type Manual struct {
 	refName string
 	unit    util.Coordinates
 	script  *Script
-	command *cmds.Command
+	command string
 	subView views.View // change name
 }
 
@@ -99,26 +98,27 @@ func (box *Manual) Update(gui *gocui.Gui, active bool) error {
 		return err
 	}
 
-	cmd := box.script.Command()
-	if cmd == box.command {
-		return nil
-	}
-
-	box.command = cmd
-	view.Clear()
-	if cmd == nil {
-		return nil
-	}
-
-	maxX, _ := view.Size()
-	page, err := manual.Get(cmd.Name, maxX)
+	cmd, err := box.script.Command()
 	if err != nil {
+		view.Clear()
+		box.command = ""
 		return nil
 	}
 
+	if cmd.Name == box.command {
+		return nil
+	}
+
+	view.Clear()
 	view.SetOrigin(0, 0)
 	view.SetCursor(0, 0)
-	view.Write(page)
+
+	box.command = cmd.Name
+	maxX, _ := view.Size()
+	page, err := manual.Get(cmd, maxX)
+	if err == nil {
+		view.Write(page)
+	}
 
 	return nil
 }
