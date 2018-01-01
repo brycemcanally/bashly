@@ -11,7 +11,7 @@ type Script struct {
 	name    string
 	unit    util.Coordinates
 	tabSize int
-	command string
+	command *cmds.Command
 }
 
 // NewScript creates a new script box.
@@ -81,7 +81,7 @@ func (box *Script) Update(gui *gocui.Gui, active bool) error {
 	x, y := view.Cursor()
 	line, _ := view.Line(y)
 	if x > len(line) {
-		box.command = ""
+		box.command = nil
 	} else {
 		offset := util.PositionIndex(view, x, y)
 		box.command = cmds.Find(view.Buffer(), offset)
@@ -91,7 +91,7 @@ func (box *Script) Update(gui *gocui.Gui, active bool) error {
 }
 
 // Command gets the current command being worked on in the script.
-func (box *Script) Command() string {
+func (box *Script) Command() *cmds.Command {
 	return box.command
 }
 

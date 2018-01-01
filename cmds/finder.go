@@ -13,6 +13,12 @@ import (
 
 type state int
 
+// Command holds information about a command.
+type Command struct {
+	Name    string
+	Options []string
+}
+
 // Finder holds data for finding command names in a bash script.
 type Finder struct {
 	pos, offset  int
@@ -23,6 +29,7 @@ type Finder struct {
 
 const (
 	command      state = iota // we are processing a command string
+	options                   // we are processing an option
 	throwaway                 // we are processing runes that can be thrown away
 	separator                 // we are processing a command separator string
 	substitution              // we are processing a substitution string
@@ -35,10 +42,10 @@ var (
 )
 
 // Find returns the name of the command being worked on at offset.
-func Find(script string, offset int) string {
+func Find(script string, offset int) *Command {
 	// Empty script
 	if len(script) <= 1 {
-		return ""
+		return nil
 	}
 
 	f := &Finder{offset: offset, delims: util.Stack{}, cmds: util.Stack{}, state: command}
@@ -63,7 +70,7 @@ func Find(script string, offset int) string {
 
 	// Empty line
 	if len(line) <= 0 {
-		return ""
+		return nil
 	}
 
 	f.line = []rune(line)
@@ -83,19 +90,14 @@ func Find(script string, offset int) string {
 	}
 
 	cmd, _ := f.cmds.Top()
-	return cmd.(string)
+	return cmd.(*Command)
 
-}
-
-// FindAll returns all of the commands in the script. (Stub)
-func FindAll(script string) []string {
-	return []string{}
 }
 
 func (f *Finder) command() {
-	token := ""
+	cmd := &Command{}
 
-	for f.state == command {
+	for f.state == command || f.state == options {
 		if f.pos >= len(f.line) {
 			f.state = throwaway
 			break
@@ -105,11 +107,13 @@ func (f *Finder) command() {
 
 		switch {
 		case isSpace(line):
-			if len(token) > 0 {
-				f.state = throwaway
-			} else {
-				f.pos++
+			if f.state == command && len(cmd.Name) > 0 {
+				cmd.Options = append(cmd.Options, "")
+				f.state = options
+			} else if f.state == options && cmd.Options[len(cmd.Options)-1] != "" {
+				cmd.Options = append(cmd.Options, "")
 			}
+			f.pos++
 		case isMultiline(line):
 			f.pos += 2
 		case isComment(line):
@@ -119,12 +123,22 @@ func (f *Finder) command() {
 		case isSubstitution(line):
 			f.state = substitution
 		default:
-			token += string(line[0])
-			f.pos++
+			if f.state == command {
+				cmd.Name += string(line[0])
+				f.pos++
+			} else if f.state == options {
+				if cmd.Options[len(cmd.Options)-1] == "" && line[0] != '-' {
+					cmd.Options = cmd.Options[:len(cmd.Options)-1]
+					f.state = throwaway
+				} else {
+					cmd.Options[len(cmd.Options)-1] += string(line[0])
+					f.pos++
+				}
+			}
 		}
 	}
 
-	f.cmds.Push(token)
+	f.cmds.Push(cmd)
 }
 
 func (f *Finder) throwaway() {
@@ -137,7 +151,7 @@ func (f *Finder) throwaway() {
 
 		switch {
 		case isComment(line):
-			f.cmds.Push("")
+			f.cmds.Push(&Command{"", nil})
 			f.pos = f.offset
 		case isSeparator(line):
 			f.state = separator
@@ -197,7 +211,7 @@ func (f *Finder) consumeSeparatingToken(token string) {
 	f.pos += len(token)
 	// Offset is in the middle of a separating token between commands
 	if f.pos > f.offset {
-		f.cmds.Push("")
+		f.cmds.Push(&Command{"", nil})
 		f.state = throwaway
 	}
 }
