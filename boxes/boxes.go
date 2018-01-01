@@ -48,6 +48,8 @@ func New(cfgs []Config) (*Boxes, error) {
 			box = NewScript(&cfg)
 		case "Manual":
 			box = NewManual(&cfg)
+		case "Options":
+			box = NewOptions(&cfg)
 		default:
 			return nil, fmt.Errorf("box number %d is of invalid type", i+1)
 		}

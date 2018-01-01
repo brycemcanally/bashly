@@ -38,6 +38,16 @@ func Default() *Config {
 	box.X0 = 50
 	box.Y0 = 0
 	box.X1 = 100
+	box.Y1 = 60
+	cfg.Boxes = append(cfg.Boxes, box)
+
+	box = boxes.Config{}
+	box.Name = "Options"
+	box.Type = "Options"
+	box.RefName = "Script"
+	box.X0 = 50
+	box.Y0 = 60
+	box.X1 = 100
 	box.Y1 = 100
 	cfg.Boxes = append(cfg.Boxes, box)
 

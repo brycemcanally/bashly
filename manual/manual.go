@@ -3,6 +3,7 @@ package manual
 import (
 	"errors"
 	"os/exec"
+	"regexp"
 	"strconv"
 
 	"github.com/bryce/bashly/cmds"
@@ -35,4 +36,42 @@ func Get(command *cmds.Command, width int) (Page, error) {
 	page := Page(bytes)
 	pageCache.Set(key, page)
 	return page, nil
+}
+
+// GetOptions returns the sections of the manual page for a given command
+// that have the description for the current options.
+func GetOptions(command *cmds.Command, width int) (Page, error) {
+	page, err := Get(command, width)
+	if err != nil {
+		return nil, err
+	}
+	optionsPage := []byte{}
+
+	for _, opt := range command.Options {
+		// Empty option (hanging - or --)
+		if len(opt) <= 1 ||
+			opt[1] == '-' && len(opt) <= 2 {
+			continue
+		}
+
+		// Handle long option
+		if opt[:2] == "--" {
+			re, _ := regexp.Compile(`\n\n\s*([^\n]*` + string(opt) + `\n?(.+\n)*\n)`)
+			matches := re.FindAllSubmatch(page, -1)
+			if len(matches) == 1 {
+				optionsPage = append(optionsPage, matches[0][1]...)
+			}
+		} else {
+			// Handle short option
+			for i := 1; i < len(opt); i++ {
+				re, _ := regexp.Compile(`\n\n\s*([^\n]*-` + string(opt[i]) + `(.+\n)*\n)`)
+				match := re.FindSubmatch(page)
+				if match != nil {
+					optionsPage = append(optionsPage, match[1]...)
+				}
+			}
+		}
+	}
+
+	return optionsPage, nil
 }
