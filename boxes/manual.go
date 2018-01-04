@@ -55,11 +55,8 @@ func (box *Manual) Setup(gui *gocui.Gui, boxs *Boxes) error {
 	if err := gui.SetKeybinding(box.Name(), gocui.MouseWheelUp, gocui.ModNone, util.ScrollUp); err != nil {
 		return err
 	}
-	if err := gui.SetKeybinding(box.Name(), gocui.KeyCtrlF, gocui.ModNone, search(box)); err != nil {
-		return err
-	}
 
-	return nil
+	return gui.SetKeybinding(box.Name(), gocui.KeyCtrlF, gocui.ModNone, search(box))
 }
 
 // SetViews sets up the views for the manual pages in this box.

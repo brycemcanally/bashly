@@ -42,11 +42,8 @@ func (box *Script) Setup(gui *gocui.Gui, boxs *Boxes) error {
 	if err := gui.SetKeybinding(box.Name(), gocui.MouseWheelUp, gocui.ModNone, util.ScrollUp); err != nil {
 		return err
 	}
-	if err := gui.SetKeybinding(box.Name(), gocui.KeyTab, gocui.ModNone, tab(box)); err != nil {
-		return err
-	}
 
-	return nil
+	return gui.SetKeybinding(box.Name(), gocui.KeyTab, gocui.ModNone, tab(box))
 }
 
 // SetViews sets up the views for this box, which is a simple text editor.
