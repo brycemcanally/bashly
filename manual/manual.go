@@ -56,7 +56,7 @@ func GetOptions(command *cmds.Command, width int) (Page, error) {
 
 		// Handle long option
 		if opt[:2] == "--" {
-			re, _ := regexp.Compile(`\n\n\s*([^\n]*` + string(opt) + `\n?(.+\n)*\n)`)
+			re, _ := regexp.Compile(`\n([ ]{7}([^ ].*?)?` + string(opt) + `.*?(\n|[ ]{8,}.*?\n)+)`)
 			matches := re.FindAllSubmatch(page, -1)
 			if len(matches) == 1 {
 				optionsPage = append(optionsPage, matches[0][1]...)
@@ -64,7 +64,7 @@ func GetOptions(command *cmds.Command, width int) (Page, error) {
 		} else {
 			// Handle short option
 			for i := 1; i < len(opt); i++ {
-				re, _ := regexp.Compile(`\n\n\s*([^\n]*-` + string(opt[i]) + `(.+\n)*\n)`)
+				re, _ := regexp.Compile(`\n([ ]{7}-` + string(opt[i]) + `.*?(\n|[ ]{8,}.*?\n)+)`)
 				match := re.FindSubmatch(page)
 				if match != nil {
 					optionsPage = append(optionsPage, match[1]...)
