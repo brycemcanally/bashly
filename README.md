@@ -4,7 +4,7 @@ Bashly (bash easily) is a terminal-based application that makes working with Bas
 ## Creating and modifying a contrived script
 ![modify](./demos/modify.gif)
 
-## Reading a real script
+## Reading a real script (with options box)
 ![read](./demos/read.gif)
 
 ## Features
