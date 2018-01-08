@@ -9,7 +9,7 @@ Bashly (bash easily) is a terminal-based application that makes working with Bas
 
 ## Features
 * Editing and saving
-* Automatic manual page loading
+* Automatic manual page and option loading
 * Basic searching through manual page
 * Configurable (box sizes and location)
 
